@@ -1,10 +1,12 @@
 import urllib.request
 from bs4 import BeautifulSoup
-import re,json
+import re,json,collections
 
 class Crawler():
     def __init__(self,id):
         self.url = "https://finance.yahoo.com/quote/{}/key-statistics?p={}".format(id,id)
+        self.keys = ['priceToBook','trailingPE']
+        self.dic = collections.defaultdict(str)
 
     def get_soup(self, url, header):
         return BeautifulSoup(urllib.request.urlopen(url), 'html.parser')
@@ -15,24 +17,31 @@ class Crawler():
         soup = self.get_soup(self.url, header)
         result = re.search('root.App.main = (.*)\;', soup.text)
         result = json.loads(result.group(1))
-        pe = list(self.find('priceToBook',result))
-        pb = list(self.find('trailingPE',result))
-        if pe: pe = pe[0]['raw']
-        if pb: pb = pb[0]['raw']
-        return [pe,pb]
+        return self.find(result,self.keys)
 
-    def find(self,key,dictionary):
-        if type(dictionary) != dict: return
-        for k, v in dictionary.items():
-            if k == key:
-                yield v
-            elif isinstance(v, dict):
-                for result in self.find(key, v):
-                    yield result
-            elif isinstance(v, list):
-                for d in v:
-                    for result in self.find(key, d):
-                        yield result
+    def find(self,dic, keys):
+        res = collections.defaultdict()
+        queue = []
+        for key, val in dic.items():
+            if key in keys:
+                res[key] = val
+            if type(val) == list or type(val) == dict:
+                queue.append(val)
+        while queue:
+            q2 = []
+            for item in queue:
+                if type(item) == list:
+                    for jtem in item:
+                        if type(jtem) == list or type(jtem) == dict:
+                            q2.append(jtem)
+                elif type(item) == dict:
+                    for key, val in item.items():
+                        if key in keys:
+                            res[key] = val
+                        if type(val) == list or type(val) == dict:
+                            q2.append(val)
+            queue = q2
+        return res
 
-a = Crawler("ERIC")
+a = Crawler("GOOG")
 print (a.crawl())
