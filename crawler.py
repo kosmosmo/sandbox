@@ -77,10 +77,9 @@ class Crawler():
                     res = self.main([row[0]])[row[0]]
                     print (res)
                     if res[0]:
-                        row[-3] = res[0]
+                        row[-3] = str(round(res[0], 2))
                     if res[1]:
-                        row[-2] = res[1]
+                        row[-2] = str(round(res[1], 2))
                     if res[0] and res[1]:
-                        row[-1] = res[0]*res[1]
-
+                        row[-1] = str(round(res[0]*res[1], 2))
                 writer.writerow(row)
