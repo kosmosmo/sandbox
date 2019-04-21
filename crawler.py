@@ -1,7 +1,8 @@
 import urllib.request
 from bs4 import BeautifulSoup
 import re,json,collections
-
+import csv
+import os
 
 class Crawler():
     def __init__(self):
@@ -65,3 +66,21 @@ class Crawler():
         with open('data.json', 'w') as outfile:
             json.dump(data, outfile)
         return res
+
+    def toCSV(self,path):
+        out = path[:-4] + '_out.csv'
+        reader = csv.reader(open(path, "r"))
+        with open(out, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            for row in reader:
+                if reader.line_num >= 3:
+                    res = self.main([row[0]])[row[0]]
+                    print (res)
+                    if res[0]:
+                        row[-3] = res[0]
+                    if res[1]:
+                        row[-2] = res[1]
+                    if res[0] and res[1]:
+                        row[-1] = res[0]*res[1]
+
+                writer.writerow(row)
