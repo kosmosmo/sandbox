@@ -17,8 +17,10 @@ pip install bs4
 from crawler import Crawler
 
 companyList = ["AAPL","GOOG"]
+Crawler().toCSV('export-net-2.csv') #gen to new csv
 Crawler.main(companyList) #return PERation and Price/Book in hashmap
 Crawler.tojson(companyList) #merge new data to local cache data
+
 
 ###
 {'AAPL': [16.818745, 8.178937], 'GOOG': [28.290277, 4.841371]}
