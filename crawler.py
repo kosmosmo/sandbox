@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import re,json,collections
 
 
-
 class Crawler():
     def __init__(self):
         self.keys = ['priceToBook','trailingPE','fiftyTwoWeekLow']
@@ -12,8 +11,13 @@ class Crawler():
     def main(self,ids):
         res = {}
         for id in ids:
+            pe = pb = None
             c = self.crawl(id)
-            res[id] = [c['trailingPE']['raw'],c['priceToBook']['raw']]
+            if 'trailingPE' in c:
+                pe = c['trailingPE']['raw']
+            if 'priceToBook' in c:
+                pb = c['priceToBook']['raw']
+            res[id] = [pe,pb]
         return res
 
     def get_soup(self, url, header):
