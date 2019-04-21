@@ -2,19 +2,29 @@ import urllib.request
 from bs4 import BeautifulSoup
 import re,json,collections
 
+
+
 class Crawler():
-    def __init__(self,id):
-        self.url = "https://finance.yahoo.com/quote/{}/key-statistics?p={}".format(id,id)
-        self.keys = ['priceToBook','trailingPE']
+    def __init__(self):
+        self.keys = ['priceToBook','trailingPE','fiftyTwoWeekLow']
         self.dic = collections.defaultdict(str)
+
+    def main(self,ids):
+        res = {}
+        for id in ids:
+            c = self.crawl(id)
+            res[id] = [c['trailingPE']['raw'],c['priceToBook']['raw']]
+        return res
 
     def get_soup(self, url, header):
         return BeautifulSoup(urllib.request.urlopen(url), 'html.parser')
 
-    def crawl(self):
+
+    def crawl(self,id):
+        url = "https://finance.yahoo.com/quote/{}/key-statistics?p={}".format(id, id)
         header = {
             'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}
-        soup = self.get_soup(self.url, header)
+        soup = self.get_soup(url, header)
         result = re.search('root.App.main = (.*)\;', soup.text)
         result = json.loads(result.group(1))
         return self.find(result,self.keys)
@@ -43,5 +53,11 @@ class Crawler():
             queue = q2
         return res
 
-a = Crawler("GOOG")
-print (a.crawl())
+    def tojson(self,ids):
+        res = self.main(ids)
+        with open('data.json') as json_file:
+            data = json.load(json_file)
+        data = {**data, **res}
+        with open('data.json', 'w') as outfile:
+            json.dump(data, outfile)
+        return res
