@@ -86,7 +86,7 @@ class Crawler():
                         else:
                             row.append('')
                         if res[0] and res[1]:
-                            row.apppend(str(round(res[0]*res[1], 2)))
+                            row.append(str(round(res[0]*res[1], 2)))
                         else:
                             row.append('')
                 except:
